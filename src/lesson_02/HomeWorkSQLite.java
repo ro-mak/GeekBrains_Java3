@@ -10,9 +10,11 @@ public class HomeWorkSQLite {
     public static void main(String[] args) {
         connect();
         createStatement();
-        dropTheTable("LESSON2");
-        task1();
-        task2();
+   //     dropTheTable("LESSON2");
+   //     task1();
+        System.out.println("Table created");
+  //      task2();
+        System.out.println("Done");
 
         disconnect();
     }
@@ -20,15 +22,15 @@ public class HomeWorkSQLite {
     public static void task1(){
         executeUpdate("CREATE TABLE LESSON2" +
                 "(ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
-                "PRODID INTEGER UNIQUE," +
+                "PRODID TEXT UNIQUE," +
                 "TITLE TEXT," +
                 "COST INTEGER)");
     }
 
     public static void task2(){
-        for (int i = 0,j = 10; i < 10; i++,j+=10) {
-            executeUpdate("INSERT INTO LESSON2 (PRODID,TITLE,COST) VALUES ('" +
-                     i +"', 'product" + i + "', '"+ j+"')");
+        for (int i = 0,j = 10; i < 10000; i++,j+=10) {
+            executeUpdate("INSERT INTO LESSON2 (ID,PRODID,TITLE,COST) VALUES (" +
+                     i +",'id_product"+i+"', 'product" + i + "', '"+ j+"')");
         }
     }
 
