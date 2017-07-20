@@ -8,15 +8,21 @@ public class HomeWorkSQLite {
     private static Statement statement;
 
     public static void main(String[] args) {
-        connect();
-        createStatement();
-   //     dropTheTable("LESSON2");
-   //     task1();
-        System.out.println("Table created");
-  //      task2();
-        System.out.println("Done");
-
-        disconnect();
+        //region First two tasks
+//        connect();
+//        createStatement();
+//          dropTheTable("LESSON2");
+//          task1();
+//        System.out.println("Table created");
+//          task2();
+//        System.out.println("Done");
+//        disconnect();
+        //endregion
+        //region SQLConsoleApp
+        SQLConsoleApplication sqlConsoleApplication = new SQLConsoleApplication();
+        sqlConsoleApplication.startApp();
+        sqlConsoleApplication.closeApp();
+        //endregion
     }
 
     public static void task1(){
