@@ -25,37 +25,48 @@ public class HomeWorkSQLite {
         //endregion
     }
 
-    public static void task1(){
+    private static void task1(){
         executeUpdate("CREATE TABLE LESSON2" +
                 "(ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
                 "PRODID TEXT UNIQUE," +
                 "TITLE TEXT," +
                 "COST INTEGER)");
+        commit();
     }
 
-    public static void task2(){
+    private static void task2(){
         for (int i = 0,j = 10; i < 10000; i++,j+=10) {
             executeUpdate("INSERT INTO LESSON2 (ID,PRODID,TITLE,COST) VALUES (" +
                      i +",'id_product"+i+"', 'product" + i + "', '"+ j+"')");
         }
+        commit();
     }
 
-    public static void dropTheTable(String tableName){
+    private static void dropTheTable(String tableName){
         executeUpdate("DROP TABLE " + tableName);
     }
 
 
 
-    public static void connect(){
+    private static void connect(){
         try{
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:educational.sqlite");
+            connection.setAutoCommit(false);
         }catch(ClassNotFoundException | SQLException e){
             e.printStackTrace();
         }
     }
 
-    public static void createStatement(){
+    private static void commit(){
+        try {
+            connection.commit();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    private static void createStatement(){
         try {
             statement = connection.createStatement();
         } catch (SQLException e) {
@@ -63,7 +74,8 @@ public class HomeWorkSQLite {
         }
     }
 
-    public static void executeUpdate(String query){
+    private static void executeUpdate(String query){
+
         try {
             statement.executeUpdate(query);
         } catch (SQLException e) {
@@ -71,7 +83,7 @@ public class HomeWorkSQLite {
         }
     }
 
-    public static void disconnect(){
+    private static void disconnect(){
         try{
             connection.close();
         }catch (SQLException e){
