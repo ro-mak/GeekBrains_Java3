@@ -6,7 +6,7 @@ import java.sql.*;
 public class SQLConsoleApplication {
     private static final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
     private static Connection connection;
-    private static Statement statement;
+    private static PreparedStatement preparedStatement;
     private String table;
     private boolean firstLaunch = true;
 
@@ -16,7 +16,6 @@ public class SQLConsoleApplication {
 
     public void startApp() {
         connect();
-        createStatement();
         String command = "";
         if (firstLaunch) {
             System.out.println("Здравствуйте, спасибо за использование нашей программы.");
@@ -48,7 +47,7 @@ public class SQLConsoleApplication {
                 if (exit == 0) {
                     exit++;
                 }
-            }else{
+            } else {
                 System.out.println("Такой команды нет, введите /помощь");
             }
         }
@@ -63,28 +62,38 @@ public class SQLConsoleApplication {
         }
     }
 
-    private void createStatement() {
+
+    private <T> void setPreparedStatement(String statement, T... argument) {
         try {
-            statement = connection.createStatement();
+            preparedStatement = connection.prepareStatement(statement);
+            if (argument.length > 0) {
+                for (int i = 0; i < argument.length; i++) {
+                    if (argument[i] instanceof String) {
+                        preparedStatement.setString(i + 1, (String) argument[i]);
+                    } else if (argument[i] instanceof Integer) {
+                        preparedStatement.setInt(i + 1, (Integer) argument[i]);
+                    }
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
     }
 
     private void executeQuery(String query) {
-        String command = "";
         StringBuilder result = new StringBuilder("Такого товара нет");
         ResultSet resultSet;
         if (query.startsWith("/цена")) {
-            command = "SELECT COST FROM " + table
-                    + " WHERE TITLE = '" + query.split(" ")[1] + "'";
+            setPreparedStatement("SELECT COST FROM " + table
+                    + " WHERE TITLE = ?;", query.split(" ")[1]);
+
         } else if (query.startsWith("/товарыпоцене")) {
-            command = "SELECT * FROM " + table
-                    + " WHERE COST >= " + query.split(" ")[1]
-                    + " AND COST <= " + query.split(" ")[2];
+            setPreparedStatement("SELECT * FROM " + table
+                    + " WHERE COST >= ? AND COST <= ?", query.split(" ")[1], query.split(" ")[2]);
         }
         try {
-            resultSet = statement.executeQuery(command);
+            resultSet = preparedStatement.executeQuery();
             boolean hasNext = false;
             while (resultSet.next()) {
                 if (!hasNext) {
@@ -92,7 +101,9 @@ public class SQLConsoleApplication {
                     hasNext = true;
                 }
                 if (query.startsWith("/цена")) {
-                    result.append("Цена выбранного товара: " + resultSet.getInt("COST"));
+                    result.append("Цена выбранного товара: ");
+                    result.append(resultSet.getInt("COST"));
+
                 } else if (query.startsWith("/товарыпоцене")) {
                     result.append(String.format("%d UNIQUE_NUMBER: %s TITLE: %s COST: %d\n",
                             resultSet.getInt("ID"), resultSet.getString("PRODID"),
@@ -106,16 +117,30 @@ public class SQLConsoleApplication {
     }
 
     private void executeUpdate(String update) {
-        String command = "";
+        String[] command = update.split(" ");
         if (update.startsWith("/создатьтаблицу")) {
-            command = "CREATE TABLE" + update.split(" ")[1];
-            table = update.split(" ")[1];
-            saveSettings();
+            table = command[1];
+            setPreparedStatement("CREATE TABLE " + table +
+                    "(ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                    "PRODID TEXT UNIQUE," +
+                    "TITLE TEXT," +
+                    "COST INTEGER)");
+            if (preparedStatement != null) saveSettings();
+        }else if (update.startsWith("/создатьлюбуютаблицу")) {
+            table = command[1];
+            StringBuilder tableType = new StringBuilder();
+            for (int i = 2; i < command.length; i++) {
+                tableType.append(command[i]);
+                tableType.append(" ");
+            }
+            setPreparedStatement("CREATE TABLE " + table + " (" + tableType.toString() + ")");
+            if (preparedStatement != null) saveSettings();
         } else if (update.startsWith("/помощь")) {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("Основные команды:\n");
             stringBuilder.append("/выбратьтаблицу имя_таблицы\n");
             stringBuilder.append("/создатьтаблицу имя_таблицы\n");
+            stringBuilder.append("/создатьлюбуютаблицу имя_таблицы колонка1 тип_данных1..., колонка2 тип_данных2...\n");
             stringBuilder.append("/сменитьцену наименование(title) цена(cost)\n");
             stringBuilder.append("/цена наименование(title)\n");
             stringBuilder.append("/товарыпоцене цена(минимум) цена(максимум)\n");
@@ -123,17 +148,16 @@ public class SQLConsoleApplication {
 
             System.out.println(stringBuilder.toString());
         } else if (update.startsWith("/выбратьтаблицу")) {
-            table = update.split(" ")[1];
+            table = command[1];
             System.out.println("Выбрана таблица " + table);
             saveSettings();
         } else if (update.startsWith("/сменитьцену")) {
-            command = "UPDATE " + table
-                    + " SET COST = " + update.split(" ")[2]
-                    + " WHERE TITLE = '" + update.split(" ")[1] + "'";
+            setPreparedStatement("UPDATE " + table + " SET COST = ?" +
+                    " WHERE TITLE = ?", command[2], command[1]);
         }
-        if (command.isEmpty()) return;
+        if (preparedStatement == null) return;
         try {
-            statement.executeUpdate(command);
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
