@@ -1,4 +1,3 @@
-package lesson_05;
 
 public abstract class Stage {
     protected int length;

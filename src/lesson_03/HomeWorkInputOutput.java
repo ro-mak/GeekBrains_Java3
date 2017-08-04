@@ -1,4 +1,3 @@
-package lesson_03;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -47,24 +46,24 @@ public class HomeWorkInputOutput {
     //endregion
 
     //region Task2
-    private static void task2WriteFiveFilesInOne(){
+    private static void task2WriteFiveFilesInOne() {
         System.out.println("Задание 2.");
         System.out.println("Введите последовательно 5 названий файлов" +
                 " или пустую строку, чтобы прочитать файлы по умолчанию");
         ArrayList<InputStream> inputStreams = new ArrayList<>();
-        String[] fileNames = {"first.txt","second.txt","third.txt","fourth.txt","fifth.txt"};
+        String[] fileNames = {"first.txt", "second.txt", "third.txt", "fourth.txt", "fifth.txt"};
         String line;
         try {
             line = readingConsoleInput();
             for (int i = 0; i < 5; i++) {
-                if(line.isEmpty()) {
+                if (line.isEmpty()) {
                     inputStreams.add(new FileInputStream(fileNames[i]));
-                }else{
+                } else {
                     line = readingConsoleInput();
                     inputStreams.add(new FileInputStream(line));
                 }
             }
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         SequenceInputStream sequenceInputStream = new SequenceInputStream(Collections.enumeration(inputStreams));
@@ -75,10 +74,10 @@ public class HomeWorkInputOutput {
         try (FileOutputStream fileOutputStream = new FileOutputStream(!line.isEmpty() ? line : "unitedFile.txt")) {
             int data;
             while ((data = sequenceInputStream.read(buffer)) > 0) {
-                fileOutputStream.write(buffer,0,data);
+                fileOutputStream.write(buffer, 0, data);
             }
             sequenceInputStream.close();
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         System.out.println("Объединенный файл создан");

@@ -1,4 +1,3 @@
-package lesson_05;
 
 public class HomeWorkMultithreading_2 {
 

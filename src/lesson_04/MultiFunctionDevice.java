@@ -1,4 +1,3 @@
-package lesson_04;
 
 import java.util.ArrayList;
 

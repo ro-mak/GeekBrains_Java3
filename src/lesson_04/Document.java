@@ -1,4 +1,3 @@
-package lesson_04;
 
 public class Document {
     private String scanningOrPrinting;

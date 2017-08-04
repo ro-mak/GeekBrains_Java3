@@ -1,4 +1,3 @@
-package lesson_05;
 
 import java.util.concurrent.Semaphore;
 

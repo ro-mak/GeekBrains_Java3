@@ -1,4 +1,3 @@
-package lesson_03;
 
 import java.io.*;
 
@@ -8,7 +7,7 @@ public class ConsolePagePrinter {
     private String fileName = "warpeace.txt";
     private int page;
 
-    private void intro(){
+    private void intro() {
         System.out.println("Добро пожаловать в консольную читалку!");
         System.out.println("Основные команды:");
         System.out.println("выбрать книгу - /выбрать");
@@ -20,55 +19,56 @@ public class ConsolePagePrinter {
                 " или нажмите enter для чтения текущей страницы выбранной книги(по умолчанию - Война и Мир):");
     }
 
-    public void start(){
+    public void start() {
         intro();
         String line;
-        while (true){
+        while (true) {
             line = readingConsoleInput();
-            if(line.equals("/выход"))break;
+            if (line.equals("/выход")) break;
 
-            if((line.isEmpty())) {
-                printPage(fileName,page);
-            }else if(line.equals("/след")) {
+            if ((line.isEmpty())) {
+                printPage(fileName, page);
+            } else if (line.equals("/след")) {
                 next();
-            }else if(line.equals("/выбрать")){
-                    fileName = line.split(",")[0];
-                    page = Integer.parseInt(line.split(",")[1]);
-                    printPage(fileName,page);
+            } else if (line.equals("/выбрать")) {
+                fileName = line.split(",")[0];
+                page = Integer.parseInt(line.split(",")[1]);
+                printPage(fileName, page);
 
-            }else if(line.equals("/помощь")){
+            } else if (line.equals("/помощь")) {
                 intro();
-            }else{
-                try{
+            } else {
+                try {
                     page = Integer.parseInt(line) - 1;
-                    printPage(fileName,page>=0? page:0);
-                }catch (NumberFormatException e){
+                    printPage(fileName, page >= 0 ? page : 0);
+                } catch (NumberFormatException e) {
                     System.out.println("Неверный ввод - /помощь");
                 }
             }
         }
     }
 
-    private void printPage(String fileName, int page){
-        System.out.println("Страница № " + (page!=0?page+1:1));
+    private void printPage(String fileName, int page) {
+        System.out.println("Страница № " + (page != 0 ? page + 1 : 1));
         StringBuilder text = new StringBuilder();
         this.fileName = fileName;
         this.page = page;
-        File file  = new File(fileName);
-        int position = PAGE_SIZE > (int)file.length() ? 0 : PAGE_SIZE*page;
-        int pageLength = PAGE_SIZE > (int)file.length() ? (int)file.length() : PAGE_SIZE;
-        try (RandomAccessFile randomAccessFile = new RandomAccessFile(fileName,"r")) {
+        File file = new File(fileName);
+        int position = PAGE_SIZE > (int) file.length() ? 0 : PAGE_SIZE * page;
+        int pageLength = PAGE_SIZE > (int) file.length() ? (int) file.length() : PAGE_SIZE;
+        try (RandomAccessFile randomAccessFile = new RandomAccessFile(fileName, "r")) {
             randomAccessFile.seek(position);
             for (int i = 0; i < pageLength; i++) {
-                text.append((char)randomAccessFile.read());
+                text.append((char) randomAccessFile.read());
             }
             System.out.println(text.toString());
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    private void next(){
-        printPage(fileName,page + 1);
+
+    private void next() {
+        printPage(fileName, page + 1);
     }
 
     private static String readingConsoleInput() {
