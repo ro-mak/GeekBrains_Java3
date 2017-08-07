@@ -34,25 +34,17 @@ public class TestExecutor {
                 countBeforeSuite++;
             }
 
-            if(method.isAnnotationPresent(Test.class)) {
-                int priority = method.getAnnotation(Test.class).priority();
-
-                if (priority > 10 || priority < 1) {
-                    throw new RuntimeException("Unsupported priority in method " + method.getName() + " of the class " + aClass.getName() + ":" + priority);
-                }
-            }
-
             if (method.isAnnotationPresent(AfterSuite.class)) {
                 countAfterSuite++;
             }
 
         }
-        if (countBeforeSuite > 1 || countBeforeSuite <= 0) {
-            throw new RuntimeException("This class has " + countBeforeSuite + " 'BeforeSuite' annotations. Should be 1.");
+        if (countBeforeSuite > 1 || countBeforeSuite < 0) {
+            throw new RuntimeException("This class has " + countBeforeSuite + " 'BeforeSuite' annotations. Should be 0.");
         }
 
-        if (countAfterSuite > 1 || countAfterSuite <= 0) {
-            throw new RuntimeException("This class has " + countAfterSuite + " 'AfterSuite' annotations. Should be 1.");
+        if (countAfterSuite > 1 || countAfterSuite < 0) {
+            throw new RuntimeException("This class has " + countAfterSuite + " 'AfterSuite' annotations. Should be 0.");
         }
     }
 
