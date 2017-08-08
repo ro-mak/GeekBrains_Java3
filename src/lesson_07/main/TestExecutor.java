@@ -7,6 +7,8 @@ public class TestExecutor {
 
     private static Class aClass;
     private static Method[] methods;
+    private static Method beforeSuite;
+    private static Method afterSuite;
 
     public static void start(Class aClass) {
         TestExecutor.aClass = aClass;
@@ -29,50 +31,43 @@ public class TestExecutor {
     private static void checkAnnotations() {
         int countBeforeSuite = 0;
         int countAfterSuite = 0;
-        for (Method method : methods) {
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
             if (method.isAnnotationPresent(BeforeSuite.class)) {
                 countBeforeSuite++;
+                beforeSuite = method;
             }
 
             if (method.isAnnotationPresent(AfterSuite.class)) {
                 countAfterSuite++;
+                afterSuite = method;
             }
 
         }
         if (countBeforeSuite > 1 || countBeforeSuite < 0) {
-            throw new RuntimeException("This class has " + countBeforeSuite + " 'BeforeSuite' annotations. Should be 0.");
+            throw new RuntimeException("This class has " + countBeforeSuite + " 'BeforeSuite' annotations. Should be 0 or 1.");
         }
 
         if (countAfterSuite > 1 || countAfterSuite < 0) {
-            throw new RuntimeException("This class has " + countAfterSuite + " 'AfterSuite' annotations. Should be 0.");
+            throw new RuntimeException("This class has " + countAfterSuite + " 'AfterSuite' annotations. Should be 0 or 1.");
         }
     }
 
     private static void execute() {
-        for (Method method : methods) {
-            if (method.isAnnotationPresent(BeforeSuite.class)) {
-                executeBeforeSuite(method);
-            }
-        }
-
-        HashMap<Method, Integer> methodsSet = new HashMap<>();
+        if(beforeSuite!=null)executeBeforeSuite();
+        HashMap<Method, Integer> testMethodsSet = new HashMap<>();
         for (Method method : methods) {
             if (method.isAnnotationPresent(Test.class)) {
-                methodsSet.put(method, method.getAnnotation(Test.class).priority());
+                testMethodsSet.put(method, method.getAnnotation(Test.class).priority());
             }
         }
-        executeTest(methodsSet);
-
-        for (Method method : methods) {
-            if (method.isAnnotationPresent(AfterSuite.class)) {
-                executeAfterSuite(method);
-            }
-        }
+        executeTest(testMethodsSet);
+        if(afterSuite!=null)executeAfterSuite();
     }
 
-    private static void executeBeforeSuite(Method method) {
+    private static void executeBeforeSuite() {
         System.out.println("executeBeforeSuite");
-        invokeMethod(method);
+        invokeMethod(beforeSuite);
     }
 
     private static void executeTest(HashMap<Method, Integer> methods) {
@@ -101,9 +96,9 @@ public class TestExecutor {
         return method;
     }
 
-    private static void executeAfterSuite(Method method) {
+    private static void executeAfterSuite() {
         System.out.println("executeAfterSuite");
-        invokeMethod(method);
+        invokeMethod(afterSuite);
     }
 
     private static void invokeMethod(Method method){

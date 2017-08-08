@@ -1,10 +1,10 @@
 
 public class HomeWorkReflectionAPIAnnotations {
 
-//    @BeforeSuite
-//    public void before() {
-//        System.out.println("Before");
-//    }
+    @BeforeSuite
+    public void before() {
+        System.out.println("Before");
+    }
 
 //    @BeforeSuite
 //    public void before1(){
